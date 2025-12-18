@@ -9,10 +9,13 @@ class Tokenizer(spm.SentencePieceProcessor):
             raise NotImplementedError(
                 f"Bộ mã hóa cho ngôn ngữ '{src_tgt_lang}' chưa được hỗ trợ."
             )
+        base_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self.src_tgt_lang = src_tgt_lang
-        model_path = os.path.join("services", "models", "tokenizer", src_tgt_lang, "spm.model")
-
+        model_path = os.path.join(
+            base_dir,
+            src_tgt_lang,
+            "spm.model"
+        )
         self.load(model_path)
     
     def tokenize(self, subset, max_seq_length):

@@ -3,50 +3,46 @@
 import { useState } from "react"
 import type { LanguageDirection } from "@/app/page"
 
-// Mock translation data
-const mockTranslations: Record<string, { en: string; vi: string }> = {
-  "xin chào": { en: "Hello", vi: "xin chào" },
-  "cảm ơn": { en: "Thank you", vi: "cảm ơn" },
-  "tạm biệt": { en: "Goodbye", vi: "tạm biệt" },
-  "bạn khỏe không": { en: "How are you?", vi: "bạn khỏe không" },
-  "tôi yêu bạn": { en: "I love you", vi: "tôi yêu bạn" },
-  hello: { en: "Hello", vi: "Xin chào" },
-  "thank you": { en: "Thank you", vi: "Cảm ơn" },
-  goodbye: { en: "Goodbye", vi: "Tạm biệt" },
-  "how are you": { en: "How are you?", vi: "Bạn khỏe không?" },
-  "i love you": { en: "I love you", vi: "Tôi yêu bạn" },
-}
+const API_URL = process.env.NEXT_PUBLIC_TRANSLATE_API
+  ?? "http://localhost:8000/api/translate"
 
 export function useTranslationMock() {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const translate = async (text: string, direction: LanguageDirection): Promise<string> => {
+  const translate = async (
+    text: string,
+    direction: LanguageDirection
+  ): Promise<string> => {
     setIsLoading(true)
+    setError(null)
 
-    // Simulate API delay (1.5 seconds)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          direction,
+        }),
+      })
 
-    const normalizedText = text.toLowerCase().trim()
-    const targetLang = direction === "vi-to-en" ? "en" : "vi"
-
-    // Check if we have a mock translation
-    const mockEntry = mockTranslations[normalizedText]
-    let result: string
-
-    if (mockEntry) {
-      result = mockEntry[targetLang]
-    } else {
-      // Return generic response for unknown inputs
-      if (direction === "vi-to-en") {
-        result = `Translation: "${text}" (This is a mock translation. In production, this would be translated by a Python backend.)`
-      } else {
-        result = `Bản dịch: "${text}" (Đây là bản dịch mô phỏng. Trong thực tế, văn bản này sẽ được dịch bởi Python backend.)`
+      if (!res.ok) {
+        throw new Error("Translation API failed")
       }
-    }
 
-    setIsLoading(false)
-    return result
+      const data = await res.json()
+      return data.translated_text
+    } catch (err: any) {
+      setError(err.message)
+      return "Error while translating"
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  return { translate, isLoading }
+  return { translate, isLoading, error }
 }
+
