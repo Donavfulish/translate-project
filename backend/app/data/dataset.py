@@ -10,7 +10,7 @@ class PhoMTDataset:
 
         self.src_lang, self.tgt_lang = src_tgt_lang.split("-")
 
-        # 🔑 LẤY PATH TUYỆT ĐỐI DỰA TRÊN FILE NÀY
+        # LẤY PATH TUYỆT ĐỐI DỰA TRÊN FILE NÀY
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
         # app/services/datasets → app/data/input/raw

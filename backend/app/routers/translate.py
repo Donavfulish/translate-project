@@ -35,8 +35,8 @@ translator = load_translator()
 
 @router.post("/translate", response_model=TranslateResponse)
 def translate_api(payload: TranslateRequest):
-    # Hiện tại bạn chỉ hỗ trợ vi -> en
-    translated_sentence = translator.translate(payload.text, 2)
+    # Hiện tại chỉ hỗ trợ vi -> en
+    translated_sentence = translator.translate(payload.text)
 
     return {
         "translated_text": translated_sentence
